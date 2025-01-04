@@ -122,31 +122,6 @@ Incremental loading is crucial for efficient data management. This project demon
    - Click on "+ New trigger" -> "New/Edit".
    - Set the schedule (e.g., daily) and associate it with the pipeline.
 
-## Sample Data
-
-### Sales Table
-
-```sql
-INSERT INTO Sales (SaleID, ProductID, SaleDate, Amount, LastModifiedDate) VALUES
-(1, 101, '2023-01-01 10:00:00', 100.00, '2023-01-01 10:00:00'),
-(2, 102, '2023-01-02 11:00:00', 150.00, '2023-01-02 11:00:00'),
-(3, 103, '2023-01-03 12:00:00', 200.00, '2023-01-03 12:00:00'),
-(4, 104, '2023-01-04 13:00:00', 250.00, '2023-01-04 13:00:00'),
-(5, 105, '2023-01-05 14:00:00', 300.00, '2023-01-05 14:00:00'),
-(6, 106, '2023-01-06 15:00:00', 350.00, '2023-01-06 15:00:00'),
-(7, 107, '2023-01-07 16:00:00', 400.00, '2023-01-07 16:00:00'),
-(8, 108, '2023-01-08 17:00:00', 450.00, '2023-01-08 17:00:00'),
-(9, 109, '2023-01-09 18:00:00', 500.00, '2023-01-09 18:00:00'),
-(10, 110, '2023-01-10 19:00:00', 550.00, '2023-01-10 19:00:00');
-```
-
-### Watermark Table
-
-```sql
-INSERT INTO WatermarkTable (TableName, LastModifiedDate) VALUES
-('Sales', '2023-01-01 00:00:00');
-```
-
 ## Results
 
 - **Efficient Data Loading**: Only new or modified data was loaded, reducing the load time significantly.
@@ -167,15 +142,3 @@ INSERT INTO WatermarkTable (TableName, LastModifiedDate) VALUES
 - **Monitoring and Optimization**: Continuous monitoring and optimization to ensure the pipeline runs smoothly.
 - **Scalability**: Exploring ways to scale the solution for larger datasets and more complex scenarios.
 - **Enhancements**: Adding more parameters and dynamic configurations to handle additional use cases.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit issues and enhancement requests.
-
-## License
-
-This project is licensed under the MIT License.
-
----
-
-You can copy and paste this content into a `README.md` file in your GitHub repository. This will provide a comprehensive guide for anyone looking to understand or replicate your incremental load process.
