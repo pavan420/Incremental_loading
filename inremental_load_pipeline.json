@@ -1,0 +1,183 @@
+{
+    "name": "pipeline1",
+    "properties": {
+        "activities": [
+            {
+                "name": "get_last_modified_date",
+                "type": "Lookup",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "AzureSqlSource",
+                        "sqlReaderQuery": {
+                            "value": "SELECT LastModifiedDate from @{pipeline().parameters.WaterMarkTableName}",
+                            "type": "Expression"
+                        },
+                        "queryTimeout": "02:00:00",
+                        "partitionOption": "None"
+                    },
+                    "dataset": {
+                        "referenceName": "watermarktbl_ds",
+                        "type": "DatasetReference"
+                    }
+                }
+            },
+            {
+                "name": "copy_DB_to_Blob",
+                "type": "Copy",
+                "dependsOn": [
+                    {
+                        "activity": "get_last_modified_date",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    },
+                    {
+                        "activity": "look_for_max_lastmodifieddate",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "AzureSqlSource",
+                        "sqlReaderQuery": {
+                            "value": "SELECT * FROM @{pipeline().parameters.SalesTableName}\nWHERE LastModifiedDate > '@{activity('get_last_modified_date').output.firstRow.LastModifiedDate}' and LastModifiedDate <= '@{activity('look_for_max_lastmodifieddate').output.value[0].MaxLastModifiedDate}'",
+                            "type": "Expression"
+                        },
+                        "queryTimeout": "02:00:00",
+                        "partitionOption": "None"
+                    },
+                    "sink": {
+                        "type": "ParquetSink",
+                        "storeSettings": {
+                            "type": "AzureBlobFSWriteSettings"
+                        },
+                        "formatSettings": {
+                            "type": "ParquetWriteSettings"
+                        }
+                    },
+                    "enableStaging": false,
+                    "translator": {
+                        "type": "TabularTranslator",
+                        "typeConversion": true,
+                        "typeConversionSettings": {
+                            "allowDataTruncation": true,
+                            "treatBooleanAsNumber": false
+                        }
+                    }
+                },
+                "inputs": [
+                    {
+                        "referenceName": "sqltable_dataset",
+                        "type": "DatasetReference"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "referenceName": "Parquet_ds",
+                        "type": "DatasetReference"
+                    }
+                ]
+            },
+            {
+                "name": "update_last_modified",
+                "type": "SqlServerStoredProcedure",
+                "dependsOn": [
+                    {
+                        "activity": "copy_DB_to_Blob",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "storedProcedureName": "[dbo].[UpdateWatermark]",
+                    "storedProcedureParameters": {
+                        "LastModifiedDate": {
+                            "value": {
+                                "value": "@{activity('look_for_max_lastmodifieddate').output.value[0].MaxLastModifieddate}",
+                                "type": "Expression"
+                            },
+                            "type": "Datetime"
+                        },
+                        "TableName": {
+                            "value": {
+                                "value": "@pipeline().parameters.SalesTableName",
+                                "type": "Expression"
+                            },
+                            "type": "String"
+                        }
+                    }
+                },
+                "linkedServiceName": {
+                    "referenceName": "sqldatabase_ls",
+                    "type": "LinkedServiceReference"
+                }
+            },
+            {
+                "name": "look_for_max_lastmodifieddate",
+                "type": "Lookup",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "source": {
+                        "type": "AzureSqlSource",
+                        "sqlReaderQuery": {
+                            "value": "SELECT MAX(LastModifiedDate) as MaxLastModifiedDate\nfrom @{pipeline().parameters.SalesTableName}",
+                            "type": "Expression"
+                        },
+                        "queryTimeout": "02:00:00",
+                        "partitionOption": "None"
+                    },
+                    "dataset": {
+                        "referenceName": "sqltable_dataset",
+                        "type": "DatasetReference"
+                    },
+                    "firstRowOnly": false
+                }
+            }
+        ],
+        "parameters": {
+            "WaterMarkTableName": {
+                "type": "string"
+            },
+            "SalesTableName": {
+                "type": "string"
+            }
+        },
+        "annotations": []
+    }
+}

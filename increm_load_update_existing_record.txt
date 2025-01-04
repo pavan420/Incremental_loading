@@ -1,0 +1,81 @@
+{
+	"dataRead": 44,
+	"dataWritten": 1075,
+	"filesWritten": 1,
+	"sourcePeakConnections": 1,
+	"sinkPeakConnections": 1,
+	"rowsRead": 1,
+	"rowsCopied": 1,
+	"copyDuration": 17,
+	"throughput": 0.01,
+	"errors": [],
+	"effectiveIntegrationRuntime": "AutoResolveIntegrationRuntime (South India)",
+	"usedDataIntegrationUnits": 4,
+	"billingReference": {
+		"activityType": "DataMovement",
+		"billableDuration": [
+			{
+				"meterType": "AzureIR",
+				"duration": 0.06666666666666667,
+				"unit": "DIUHours"
+			}
+		],
+		"totalBillableDuration": [
+			{
+				"meterType": "AzureIR",
+				"duration": 0.06666666666666667,
+				"unit": "DIUHours"
+			}
+		]
+	},
+	"usedParallelCopies": 1,
+	"executionDetails": [
+		{
+			"source": {
+				"type": "AzureSqlDatabase",
+				"region": "Australia East"
+			},
+			"sink": {
+				"type": "AzureBlobFS",
+				"region": "South India"
+			},
+			"status": "Succeeded",
+			"start": "1/4/2025, 2:30:33 PM",
+			"duration": 17,
+			"usedDataIntegrationUnits": 4,
+			"usedParallelCopies": 1,
+			"profile": {
+				"queue": {
+					"status": "Completed",
+					"duration": 7
+				},
+				"transfer": {
+					"status": "Completed",
+					"duration": 8,
+					"details": {
+						"readingFromSource": {
+							"type": "AzureSqlDatabase",
+							"workingDuration": 0,
+							"timeToFirstByte": 0
+						},
+						"writingToSink": {
+							"type": "AzureBlobFS",
+							"workingDuration": 0
+						}
+					}
+				}
+			},
+			"detailedDurations": {
+				"queuingDuration": 7,
+				"timeToFirstByte": 0,
+				"transferDuration": 8
+			}
+		}
+	],
+	"dataConsistencyVerification": {
+		"VerificationResult": "NotVerified"
+	},
+	"durationInQueue": {
+		"integrationRuntimeQueue": 0
+	}
+}
